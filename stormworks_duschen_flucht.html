@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stormworks Spieler vs. Dusche</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      touch-action: none;
+      overflow: hidden;
+      user-select: none;
+    }
+    
+    canvas {
+      display: block;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    
+    .glow-red {
+      box-shadow: 0 0 25px rgba(239, 68, 68, 0.6);
+    }
+
+    .glow-cyan {
+      box-shadow: 0 0 25px rgba(6, 182, 212, 0.6);
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-white min-h-screen flex flex-col items-center justify-center p-2 relative">
+
+  <!-- Top UI Overlay -->
+  <div class="absolute top-4 left-4 right-4 max-w-4xl mx-auto flex justify-between items-center pointer-events-none z-10">
+    <div class="bg-slate-900/80 backdrop-blur border border-slate-800 px-4 py-2 rounded-xl flex items-center gap-3">
+      <span class="text-xs uppercase tracking-wider text-slate-400 font-bold">Status:</span>
+      <span id="statusText" class="text-amber-400 font-bold flex items-center gap-2">
+        <span class="inline-block w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
+        Flucht vor der Dusche!
+      </span>
+    </div>
+
+    <div class="bg-slate-900/80 backdrop-blur border border-slate-800 px-5 py-2 rounded-xl flex items-center gap-4">
+      <div>
+        <div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Überlebenszeit</div>
+        <div id="scoreDisplay" class="text-2xl font-black text-cyan-400 tracking-tight">0.0s</div>
+      </div>
+      <div class="h-8 w-px bg-slate-800"></div>
+      <div>
+        <div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Bestzeit</div>
+        <div id="highScoreDisplay" class="text-2xl font-black text-amber-400 tracking-tight">0.0s</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Game Container -->
+  <div class="relative w-full max-w-4xl h-[75vh] min-h-[400px] flex items-center justify-center rounded-2xl overflow-hidden border border-slate-800 bg-slate-900/50">
+    <canvas id="gameCanvas" class="w-full h-full bg-slate-900 rounded-2xl"></canvas>
+
+    <!-- Controls Overlay (Mobile & Onscreen) -->
+    <div id="touchControls" class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-3 md:hidden pointer-events-auto">
+      <button id="btnUp" class="w-12 h-12 bg-slate-800/80 active:bg-cyan-600 rounded-xl border border-slate-700 text-xl font-bold flex items-center justify-center">▲</button>
+      <div class="flex flex-col gap-3">
+        <button id="btnLeft" class="w-12 h-12 bg-slate-800/80 active:bg-cyan-600 rounded-xl border border-slate-700 text-xl font-bold flex items-center justify-center">◀</button>
+        <button id="btnRight" class="w-12 h-12 bg-slate-800/80 active:bg-cyan-600 rounded-xl border border-slate-700 text-xl font-bold flex items-center justify-center">▶</button>
+      </div>
+      <button id="btnDown" class="w-12 h-12 bg-slate-800/80 active:bg-cyan-600 rounded-xl border border-slate-700 text-xl font-bold flex items-center justify-center">▼</button>
+    </div>
+
+    <!-- Start / Game Over Screen Overlay -->
+    <div id="overlayScreen" class="absolute inset-0 bg-slate-950/85 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center z-20">
+      <!-- Title Graphic -->
+      <div class="mb-6">
+        <h1 class="text-4xl md:text-6xl font-black tracking-tight text-white mb-2">
+          STORMWORKS <span class="text-red-500 line-through decoration-4 decoration-red-500">SPIELER</span>
+        </h1>
+        <div class="inline-block bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 px-4 py-1.5 rounded-full text-sm font-semibold tracking-wide uppercase">
+          🚨 ACHTUNG: HYGIENE-ALARM 🚨
+        </div>
+      </div>
+
+      <p id="overlayMessage" class="text-slate-300 text-lg max-w-md mb-8 leading-relaxed">
+        Du baust lieber 12 Stunden an einer Wasserpumpe, als dich zu waschen? Die Dusche hat dich lokalisiert und verfolgt dich!
+      </p>
+
+      <div class="flex flex-col sm:flex-row gap-4">
+        <button id="startBtn" class="glow-cyan px-8 py-4 bg-cyan-500 hover:bg-cyan-400 active:bg-cyan-600 text-slate-950 font-black text-xl rounded-xl transition duration-200 transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2">
+          <span>🎮</span> JETZT FLÜCHTEN
+        </button>
+      </div>
+
+      <div class="mt-8 text-xs text-slate-500 flex items-center gap-4">
+        <span>Steuerung: <kbd class="px-2 py-1 bg-slate-800 rounded text-slate-300 font-mono">WASD</kbd> oder <kbd class="px-2 py-1 bg-slate-800 rounded text-slate-300 font-mono">Pfeiltasten</kbd></span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    const overlayScreen = document.getElementById('overlayScreen');
+    const overlayMessage = document.getElementById('overlayMessage');
+    const startBtn = document.getElementById('startBtn');
+    const scoreDisplay = document.getElementById('scoreDisplay');
+    const highScoreDisplay = document.getElementById('highScoreDisplay');
+    const statusText = document.getElementById('statusText');
+
+    // Game variables
+    let gameActive = false;
+    let score = 0;
+    let highScore = 0;
+    let startTime = 0;
+    let animationFrameId = null;
+
+    // Keys pressed state
+    const keys = {
+      ArrowUp: false,
+      ArrowDown: false,
+      ArrowLeft: false,
+      ArrowRight: false,
+      w: false,
+      a: false,
+      s: false,
+      d: false
+    };
+
+    // Player object (Stormworks Gamer)
+    const player = {
+      x: 0,
+      y: 0,
+      radius: 24,
+      speed: 6.5,
+      color: '#06b6d4',
+      trail: []
+    };
+
+    // Shower enemy object
+    const shower = {
+      x: 0,
+      y: 0,
+      radius: 32,
+      baseSpeed: 3.8,
+      speed: 3.8,
+      waterDrops: []
+    };
+
+    // Resize canvas dynamically
+    function resizeCanvas() {
+      const container = canvas.parentElement;
+      canvas.width = container.clientWidth;
+      canvas.height = container.clientHeight;
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    // Input handlers
+    window.addEventListener('keydown', (e) => {
+      const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+      if (keys.hasOwnProperty(k) || keys.hasOwnProperty(e.key)) {
+        keys[e.key] = true;
+        if (e.key.length === 1) keys[e.key.toLowerCase()] = true;
+      }
+    });
+
+    window.addEventListener('keyup', (e) => {
+      const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+      if (keys.hasOwnProperty(k) || keys.hasOwnProperty(e.key)) {
+        keys[e.key] = false;
+        if (e.key.length === 1) keys[e.key.toLowerCase()] = false;
+      }
+    });
+
+    function setupTouchControl(id, keyName) {
+      const btn = document.getElementById(id);
+      if (!btn) return;
+
+      const start = (e) => { e.preventDefault(); keys[keyName] = true; };
+      const end = (e) => { e.preventDefault(); keys[keyName] = false; };
+
+      btn.addEventListener('touchstart', start);
+      btn.addEventListener('touchend', end);
+      btn.addEventListener('mousedown', start);
+      btn.addEventListener('mouseup', end);
+    }
+
+    setupTouchControl('btnUp', 'ArrowUp');
+    setupTouchControl('btnDown', 'ArrowDown');
+    setupTouchControl('btnLeft', 'ArrowLeft');
+    setupTouchControl('btnRight', 'ArrowRight');
+
+    function resetGame() {
+      resizeCanvas();
+      
+      // Position player at center
+      player.x = canvas.width / 2;
+      player.y = canvas.height / 2;
+      player.trail = [];
+
+      // Spawn shower at top left or random corner far from player
+      shower.x = 80;
+      shower.y = 80;
+      shower.speed = shower.baseSpeed;
+      shower.waterDrops = [];
+
+      // Initialize drops
+      for (let i = 0; i < 25; i++) {
+        shower.waterDrops.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          speed: 2 + Math.random() * 4,
+          length: 8 + Math.random() * 12,
+          opacity: 0.2 + Math.random() * 0.5
+        });
+      }
+
+      score = 0;
+      startTime = Date.now();
+      gameActive = true;
+      overlayScreen.classList.add('hidden');
+      statusText.innerHTML = `<span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span> Läuft davon!`;
+
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+      gameLoop();
+    }
+
+    function update() {
+      if (!gameActive) return;
+
+      // Update timer / score
+      score = ((Date.now() - startTime) / 1000).toFixed(1);
+      scoreDisplay.textContent = `${score}s`;
+
+      // Slowly increase shower speed as time passes
+      shower.speed = shower.baseSpeed + Math.min(score * 0.08, 4.5);
+
+      // Player Movement
+      let dx = 0;
+      let dy = 0;
+
+      if (keys.ArrowUp || keys.w) dy -= 1;
+      if (keys.ArrowDown || keys.s) dy += 1;
+      if (keys.ArrowLeft || keys.a) dx -= 1;
+      if (keys.ArrowRight || keys.d) dx += 1;
+
+      // Normalize diagonal speed
+      if (dx !== 0 && dy !== 0) {
+        dx *= 0.7071;
+        dy *= 0.7071;
+      }
+
+      player.x += dx * player.speed;
+      player.y += dy * player.speed;
+
+      // Clamp player inside canvas
+      player.x = Math.max(player.radius, Math.min(canvas.width - player.radius, player.x));
+      player.y = Math.max(player.radius, Math.min(canvas.height - player.radius, player.y));
+
+      // Player Trail
+      player.trail.push({ x: player.x, y: player.y, alpha: 1.0 });
+      if (player.trail.length > 12) player.trail.shift();
+      player.trail.forEach(t => t.alpha -= 0.08);
+
+      // Shower Chasing Logic (move towards player)
+      const angle = Math.atan2(player.y - shower.y, player.x - shower.x);
+      shower.x += Math.cos(angle) * shower.speed;
+      shower.y += Math.sin(angle) * shower.speed;
+
+      // Update ambient water drops around shower
+      shower.waterDrops.forEach(drop => {
+        drop.y += drop.speed;
+        drop.x -= 0.5;
+        if (drop.y > canvas.height) {
+          drop.y = -10;
+          drop.x = Math.random() * canvas.width;
+        }
+      });
+
+      const dist = Math.hypot(player.x - shower.x, player.y - shower.y);
+      if (dist < player.radius + shower.radius - 5) {
+        gameOver();
+      }
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Draw Grid Background
+      ctx.strokeStyle = '#1e293b';
+      ctx.lineWidth = 1;
+      const gridSize = 40;
+      for (let x = 0; x < canvas.width; x += gridSize) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, canvas.height);
+        ctx.stroke();
+      }
+      for (let y = 0; y < canvas.height; y += gridSize) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(canvas.width, y);
+        ctx.stroke();
+      }
+
+      // Draw Ambient Rain Drops
+      shower.waterDrops.forEach(drop => {
+        ctx.strokeStyle = `rgba(56, 189, 248, ${drop.opacity})`;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(drop.x, drop.y);
+        ctx.lineTo(drop.x - 2, drop.y + drop.length);
+        ctx.stroke();
+      });
+
+      // Draw Player Trail
+      player.trail.forEach(t => {
+        if (t.alpha <= 0) return;
+        ctx.fillStyle = `rgba(6, 182, 212, ${t.alpha * 0.3})`;
+        ctx.beginPath();
+        ctx.arc(t.x, t.y, player.radius * 0.8, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      // Draw Player (Stormworks Gamer)
+      ctx.save();
+      ctx.translate(player.x, player.y);
+
+      // Player Outer Glow
+      ctx.shadowColor = '#06b6d4';
+      ctx.shadowBlur = 15;
+
+      // Player Body
+      ctx.fillStyle = '#0284c7';
+      ctx.beginPath();
+      ctx.arc(0, 0, player.radius, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
+      // Headset / Gamer detail
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(-player.radius - 2, -6, 6, 12);
+      ctx.fillRect(player.radius - 4, -6, 6, 12);
+
+      // Text label for player
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 11px Inter, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('STORMWORKS', 0, -player.radius - 8);
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '9px Inter, sans-serif';
+      ctx.fillText('SPIELER', 0, 4);
+
+      ctx.restore();
+
+      // Draw Shower Enemy
+      ctx.save();
+      ctx.translate(shower.x, shower.y);
+
+      // Red Hazard Aura
+      ctx.shadowColor = '#ef4444';
+      ctx.shadowBlur = 25;
+
+      ctx.fillStyle = '#1e1b4b';
+      ctx.beginPath();
+      ctx.arc(0, 0, shower.radius, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#ef4444';
+      ctx.lineWidth = 4;
+      ctx.stroke();
+
+      // Showerhead Icon Rendering
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = '#94a3b8';
+      // Shower pipe
+      ctx.fillRect(-4, -shower.radius + 6, 8, 14);
+      // Shower head plate
+      ctx.fillStyle = '#cbd5e1';
+      ctx.beginPath();
+      ctx.ellipse(0, -2, 18, 8, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Water Spray Particles from Showerhead
+      ctx.fillStyle = '#38bdf8';
+      const time = Date.now() * 0.01;
+      for (let i = -12; i <= 12; i += 6) {
+        const offset = Math.sin(time + i) * 3;
+        ctx.beginPath();
+        ctx.arc(i, 12 + offset, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Label "DUSCHE"
+      ctx.fillStyle = '#f87171';
+      ctx.font = 'black 12px Inter, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('🚿 DUSCHE', 0, shower.radius + 16);
+
+      ctx.restore();
+    }
+
+    function gameLoop() {
+      update();
+      draw();
+      if (gameActive) {
+        animationFrameId = requestAnimationFrame(gameLoop);
+      }
+    }
+
+    function gameOver() {
+      gameActive = false;
+      if (parseFloat(score) > parseFloat(highScore)) {
+        highScore = score;
+        highScoreDisplay.textContent = `${highScore}s`;
+      }
+
+      statusText.innerHTML = `<span class="inline-block w-2.5 h-2.5 rounded-full bg-red-500"></span> ERWISCHT!`;
+
+      // Show Overlay
+      overlayMessage.innerHTML = `
+        <span class="text-2xl font-black text-red-500 block mb-2">SEIFE UND WASSER HABEN DICH ERWISCHT!</span>
+        Du hast <span class="text-cyan-400 font-bold">${score} Sekunden</span> lang hygiene-resistent überlebt.
+      `;
+      startBtn.innerHTML = `<span>🔄</span> ERNEUT VERSUCHEN`;
+      overlayScreen.classList.remove('hidden');
+    }
+
+    startBtn.addEventListener('click', resetGame);
+  </script>
+</body>
+</html>
