@@ -3,433 +3,1401 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Stormworks Spieler vs. Dusche</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <title>Ministerium für Seife &amp; Ordnung</title>
+  <meta name="description" content="Amtliche Aufklärung über die Gefahren von Stormworks für die Körperhygiene. Satire.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Courier+Prime:wght@400;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
-    
-    body {
-      font-family: 'Inter', sans-serif;
-      touch-action: none;
-      overflow: hidden;
-      user-select: none;
-    }
-    
-    canvas {
-      display: block;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    }
-    
-    .glow-red {
-      box-shadow: 0 0 25px rgba(239, 68, 68, 0.6);
+    :root {
+      --paper: #ece3cf;
+      --paper-2: #e2d6ba;
+      --paper-3: #f4eddc;
+      --ink: #1b1814;
+      --ink-soft: #4d453a;
+      --red: #c3261c;
+      --red-dark: #8c1b13;
+      --mustard: #dda12a;
+      --water: #24577e;
+      --water-light: #7fa9c6;
+      --display: 'Anton', 'Impact', 'Arial Narrow', sans-serif;
+      --mono: 'Courier Prime', 'Courier New', monospace;
+      --serif: 'Source Serif 4', Georgia, serif;
     }
 
-    .glow-cyan {
-      box-shadow: 0 0 25px rgba(6, 182, 212, 0.6);
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--serif);
+      font-size: 18px;
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Papierkorn über der ganzen Seite */
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 100;
+      opacity: .09;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+
+    a { color: inherit; }
+    .wrap { max-width: 1120px; margin: 0 auto; padding: 0 20px; }
+
+    /* ---------- Kopf ---------- */
+    .masthead { padding-top: 18px; }
+    .mast-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      font-family: var(--mono);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      border-bottom: 1px solid var(--ink);
+      padding-bottom: 8px;
+    }
+    .mast-title {
+      font-family: var(--display);
+      font-weight: 400;
+      text-transform: uppercase;
+      font-size: clamp(44px, 9.5vw, 128px);
+      line-height: .88;
+      letter-spacing: -.005em;
+      margin: 18px 0 14px;
+    }
+    .mast-title em { font-style: normal; color: var(--red); }
+    .mast-nav {
+      display: flex;
+      flex-wrap: wrap;
+      border-top: 5px solid var(--ink);
+      border-bottom: 1px solid var(--ink);
+      box-shadow: 0 -9px 0 -6px var(--ink);
+      margin-top: 4px;
+    }
+    .mast-nav a {
+      flex: 1 1 auto;
+      text-align: center;
+      padding: 10px 14px;
+      font-family: var(--mono);
+      font-weight: 700;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      text-decoration: none;
+      border-right: 1px solid var(--ink);
+    }
+    .mast-nav a:last-child { border-right: 0; }
+    .mast-nav a:hover { background: var(--ink); color: var(--paper); }
+
+    /* ---------- Laufband ---------- */
+    .ticker {
+      background: var(--ink);
+      color: var(--mustard);
+      font-family: var(--mono);
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 15px;
+      letter-spacing: .05em;
+      overflow: hidden;
+      white-space: nowrap;
+      margin-top: 22px;
+      padding: 9px 0;
+    }
+    .ticker-track { display: inline-block; animation: ticker 70s linear infinite; }
+    .ticker-track span { padding-right: 2.5em; }
+    @keyframes ticker { to { transform: translateX(-50%); } }
+
+    /* ---------- Allgemeine Bausteine ---------- */
+    .section { padding: 72px 0 24px; }
+    .sec-head {
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+      border-bottom: 3px solid var(--ink);
+      padding-bottom: 6px;
+      margin-bottom: 22px;
+    }
+    .sec-no { font-family: var(--mono); font-weight: 700; font-size: 18px; color: var(--red); }
+    .sec-head h2 {
+      font-family: var(--display);
+      font-weight: 400;
+      text-transform: uppercase;
+      font-size: clamp(34px, 5.5vw, 60px);
+      line-height: 1;
+      margin: 0;
+    }
+    .sec-intro { max-width: 680px; margin: 0 0 28px; }
+    .kicker {
+      font-family: var(--mono);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      font-size: 14px;
+      color: var(--red);
+      margin: 0 0 12px;
+    }
+
+    .btn {
+      display: inline-block;
+      font-family: var(--display);
+      font-weight: 400;
+      text-transform: uppercase;
+      font-size: 22px;
+      letter-spacing: .03em;
+      line-height: 1;
+      padding: 14px 24px 13px;
+      background: var(--red);
+      color: var(--paper-3);
+      border: 3px solid var(--ink);
+      box-shadow: 5px 5px 0 var(--ink);
+      text-decoration: none;
+      cursor: pointer;
+      transition: transform .08s, box-shadow .08s;
+    }
+    .btn:hover { background: var(--red-dark); }
+    .btn:active { transform: translate(4px, 4px); box-shadow: 1px 1px 0 var(--ink); }
+    .btn:focus-visible { outline: 3px dashed var(--ink); outline-offset: 5px; }
+    .btn-ghost { background: var(--paper-3); color: var(--ink); }
+    .btn-ghost:hover { background: var(--mustard); }
+
+    .stamp { color: var(--red); mix-blend-mode: multiply; opacity: .88; }
+
+    /* ---------- Aufruf / Hero ---------- */
+    .hero { padding: 56px 0 24px; }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 48px;
+      align-items: center;
+    }
+    .hero-h {
+      font-family: var(--display);
+      font-weight: 400;
+      text-transform: uppercase;
+      font-size: clamp(48px, 7.5vw, 104px);
+      line-height: .92;
+      margin: 0 0 22px;
+    }
+    .hero-h span { display: block; color: var(--red); }
+    .lede { font-size: 21px; max-width: 34em; margin: 0 0 30px; }
+    .lede strong { background: var(--mustard); padding: 0 .2em; font-weight: 600; }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 18px; }
+
+    .poster-main {
+      position: relative;
+      aspect-ratio: 4 / 5;
+      border: 4px solid var(--ink);
+      background: repeating-conic-gradient(from 0deg at 50% 36%, var(--red) 0deg 7deg, var(--red-dark) 7deg 14deg);
+      overflow: hidden;
+      box-shadow: 10px 10px 0 var(--ink);
+    }
+    .poster-main svg.shower-art { position: absolute; inset: 0; width: 100%; height: 100%; }
+    .poster-main .water line { animation: fall .7s linear infinite; }
+    @keyframes fall { to { stroke-dashoffset: -46; } }
+    .poster-banner {
+      position: absolute;
+      left: 0; right: 0; bottom: 0;
+      background: var(--ink);
+      color: var(--paper-3);
+      font-family: var(--display);
+      text-transform: uppercase;
+      text-align: center;
+      font-size: clamp(26px, 3.6vw, 42px);
+      line-height: 1;
+      padding: 14px 10px 12px;
+    }
+    .poster-banner small {
+      display: block;
+      font-family: var(--mono);
+      font-size: 13px;
+      letter-spacing: .14em;
+      color: var(--mustard);
+      margin-top: 6px;
+    }
+    .poster-main .stamp {
+      position: absolute;
+      width: 36%;
+      right: 5%;
+      top: 4%;
+      transform: rotate(14deg);
+      color: var(--paper-3);
+      mix-blend-mode: normal;
+      opacity: .92;
+    }
+
+    /* ---------- Simulator ---------- */
+    .game { border: 4px solid var(--ink); background: var(--paper-3); box-shadow: 10px 10px 0 var(--ink); }
+    .hud {
+      display: grid;
+      grid-template-columns: repeat(3, auto) 1fr;
+      border-bottom: 4px solid var(--ink);
+      font-family: var(--mono);
+    }
+    .hud > div { padding: 8px 18px; border-right: 2px solid var(--ink); }
+    .hud > div:last-child { border-right: 0; }
+    .hud-label { font-size: 12px; text-transform: uppercase; letter-spacing: .12em; color: var(--ink-soft); }
+    .hud-value { font-family: var(--display); font-size: 30px; line-height: 1.05; font-variant-numeric: tabular-nums; }
+    .hud-status { display: flex; align-items: center; justify-content: flex-end; text-align: right; }
+    .hud-status .hud-value { font-family: var(--mono); font-weight: 700; font-size: 16px; text-transform: uppercase; }
+    .hud-status[data-level="warn"] { background: var(--mustard); }
+    .hud-status[data-level="alarm"] { background: var(--red); color: var(--paper-3); }
+    .hud-status[data-level="warn"] .hud-label,
+    .hud-status[data-level="alarm"] .hud-label { color: inherit; }
+
+    .stage { position: relative; height: min(68vh, 620px); min-height: 380px; }
+    .stage canvas { display: block; width: 100%; height: 100%; touch-action: none; cursor: crosshair; }
+
+    .overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(27, 24, 20, .55);
+    }
+    .overlay[hidden] { display: none; }
+    .card {
+      position: relative;
+      background: var(--paper);
+      border: 4px solid var(--ink);
+      box-shadow: 8px 8px 0 var(--ink);
+      max-width: 520px;
+      width: 100%;
+      padding: 26px 28px 28px;
+    }
+    .card h3 {
+      font-family: var(--display);
+      font-weight: 400;
+      text-transform: uppercase;
+      font-size: clamp(30px, 5vw, 44px);
+      line-height: .95;
+      margin: 0 0 12px;
+    }
+    .card p { margin: 0 0 18px; }
+    .card .stamp { position: absolute; width: 120px; right: -26px; top: -40px; transform: rotate(16deg); }
+    .card-facts {
+      font-family: var(--mono);
+      font-size: 16px;
+      border-top: 2px solid var(--ink);
+      border-bottom: 2px solid var(--ink);
+      margin: 0 0 20px;
+      padding: 8px 0;
+    }
+    .card-facts div { display: flex; justify-content: space-between; gap: 10px; padding: 2px 0; }
+    .card-facts b { font-weight: 700; }
+    .rank { color: var(--red); font-weight: 700; }
+    .game-help { font-family: var(--mono); font-size: 14px; margin: 0; padding: 10px 18px; border-top: 2px solid var(--ink); }
+    .game-help kbd {
+      font-family: var(--mono);
+      font-weight: 700;
+      border: 2px solid var(--ink);
+      padding: 0 5px;
+      background: var(--paper);
+    }
+
+    /* ---------- Plakate ---------- */
+    .posters { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
+    .poster {
+      position: relative;
+      aspect-ratio: 3 / 4;
+      border: 4px solid var(--ink);
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 7px 7px 0 var(--ink);
+      transition: transform .15s;
+    }
+    .poster:hover { transform: rotate(-1deg) translateY(-3px); }
+    .poster-big {
+      font-family: var(--display);
+      text-transform: uppercase;
+      line-height: .9;
+      font-size: clamp(40px, 4.8vw, 62px);
+      margin: auto 0 0;
+      position: relative;
+    }
+    .poster-small { font-family: var(--mono); font-size: 14px; text-transform: uppercase; letter-spacing: .08em; position: relative; margin-top: 14px; }
+    .poster-tag {
+      font-family: var(--mono);
+      font-weight: 700;
+      font-size: 12px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      position: relative;
+    }
+
+    .p1 { background: var(--red); color: var(--paper-3); }
+    .p1::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle, rgba(0,0,0,.22) 1.6px, transparent 2px) 0 0 / 11px 11px;
+    }
+    .p2 { background: var(--mustard); }
+    .p2 .poster-num { font-family: var(--display); font-size: clamp(110px, 13vw, 170px); line-height: .8; color: var(--red); position: relative; margin-top: auto; }
+    .p2 .poster-big { margin-top: 6px; font-size: clamp(30px, 3.4vw, 42px); }
+    .p3 { background: var(--ink); color: var(--paper-3); }
+    .p3::before {
+      content: "";
+      position: absolute;
+      left: -20%; right: -20%;
+      top: 38%;
+      height: 70px;
+      background: var(--red);
+      transform: rotate(-16deg);
+    }
+    .p3 .poster-big { color: var(--paper-3); }
+    .p4 { background: var(--water); color: var(--paper-3); }
+    .p4::before {
+      content: "";
+      position: absolute;
+      left: 0; right: 0; top: 0; height: 52%;
+      background:
+        radial-gradient(circle at 50% 0, transparent 13px, var(--water-light) 14px, var(--water-light) 18px, transparent 19px) 0 0 / 40px 22px;
+      opacity: .55;
+    }
+    .p5 {
+      background:
+        radial-gradient(circle, var(--ink) 1.2px, transparent 1.6px) 0 0 / 9px 9px,
+        var(--paper-3);
+    }
+    .p5 .poster-box { background: var(--paper-3); border: 3px solid var(--ink); padding: 14px; margin-top: auto; position: relative; }
+    .p5 .poster-big { color: var(--red); font-size: clamp(34px, 3.8vw, 48px); }
+    .p6 { background: linear-gradient(160deg, var(--paper-3) 0 49.6%, var(--ink) 50%); }
+    .p6 .poster-big { font-size: clamp(36px, 4.2vw, 54px); margin: 10px 0 0; }
+    .p6 .poster-big.lower { margin-top: auto; color: var(--paper-3); }
+    .p6 .poster-small { color: var(--mustard); }
+
+    /* ---------- Lagebericht ---------- */
+    .report { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start; }
+    .form-sheet {
+      background: var(--paper-3);
+      border: 2px solid var(--ink);
+      padding: 22px 24px;
+      font-family: var(--mono);
+      position: relative;
+    }
+    .form-sheet h3 {
+      font-family: var(--mono);
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      margin: 0 0 16px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--ink);
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .row { display: flex; align-items: baseline; gap: 8px; padding: 6px 0; font-size: 16px; }
+    .row .lead { flex: 1; border-bottom: 2px dotted var(--ink-soft); transform: translateY(-4px); min-width: 20px; }
+    .row b { font-weight: 700; white-space: nowrap; font-variant-numeric: tabular-nums; }
+    .row b.red { color: var(--red); }
+    .clock {
+      font-family: var(--display);
+      font-size: clamp(34px, 5vw, 54px);
+      line-height: 1;
+      color: var(--red);
+      margin: 6px 0 4px;
+      font-variant-numeric: tabular-nums;
+    }
+    .bars { list-style: none; margin: 0; padding: 0; }
+    .bars li { display: grid; grid-template-columns: 9.5em 1fr 3.4em; gap: 10px; align-items: center; padding: 6px 0; font-size: 15px; }
+    .bar { height: 18px; border: 2px solid var(--ink); background: var(--paper); }
+    .bar i { display: block; height: 100%; background: var(--ink); }
+    .bar i.red { background: var(--red); }
+    .bars li span:last-child { text-align: right; font-weight: 700; }
+    .footnote { font-family: var(--mono); font-size: 13px; color: var(--ink-soft); margin: 14px 0 0; }
+
+    /* ---------- Selbsttest ---------- */
+    .quiz { display: grid; grid-template-columns: 1.3fr .7fr; gap: 40px; align-items: start; }
+    .checks { list-style: none; margin: 0 0 24px; padding: 0; border-top: 2px solid var(--ink); }
+    .checks li { border-bottom: 2px solid var(--ink); }
+    .checks label { display: flex; gap: 16px; align-items: flex-start; padding: 14px 4px; cursor: pointer; }
+    .checks input { position: absolute; opacity: 0; pointer-events: none; }
+    .box {
+      flex: none;
+      width: 28px;
+      height: 28px;
+      border: 3px solid var(--ink);
+      background: var(--paper-3);
+      position: relative;
+      margin-top: 1px;
+    }
+    .checks input:checked + .box::before,
+    .checks input:checked + .box::after {
+      content: "";
+      position: absolute;
+      left: 50%; top: 50%;
+      width: 30px; height: 4px;
+      background: var(--red);
+      transform: translate(-50%, -50%) rotate(45deg);
+    }
+    .checks input:checked + .box::after { transform: translate(-50%, -50%) rotate(-45deg); }
+    .checks input:focus-visible + .box { outline: 3px dashed var(--ink); outline-offset: 3px; }
+    .verdict {
+      border: 4px solid var(--ink);
+      background: var(--paper-3);
+      padding: 24px;
+      min-height: 260px;
+      position: relative;
+      text-align: center;
+    }
+    .verdict-label { font-family: var(--mono); font-size: 13px; text-transform: uppercase; letter-spacing: .12em; margin: 0 0 18px; }
+    .verdict-stamp {
+      display: inline-block;
+      font-family: var(--display);
+      text-transform: uppercase;
+      font-size: clamp(30px, 3.6vw, 44px);
+      line-height: 1;
+      color: var(--red);
+      border: 5px solid currentColor;
+      padding: 10px 16px 8px;
+      transform: rotate(-7deg);
+      mix-blend-mode: multiply;
+      margin: 10px 0 20px;
+    }
+    .verdict-stamp.ok { color: var(--water); }
+    .verdict-stamp.warn { color: #9a6a00; }
+    .verdict p { margin: 0; }
+    .verdict.pending .verdict-stamp { color: var(--ink-soft); border-style: dashed; transform: none; }
+    .verdict.pop .verdict-stamp { animation: stampIn .28s ease-out; }
+    @keyframes stampIn {
+      from { transform: rotate(-7deg) scale(2.2); opacity: 0; }
+      to { transform: rotate(-7deg) scale(1); opacity: 1; }
+    }
+
+    /* ---------- Gelöbnis ---------- */
+    .pledge { display: grid; grid-template-columns: .9fr 1.1fr; gap: 40px; align-items: start; }
+    .field { display: block; margin-bottom: 18px; }
+    .field span { display: block; font-family: var(--mono); font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; margin-bottom: 6px; }
+    .field input[type="text"] {
+      width: 100%;
+      font: inherit;
+      font-family: var(--mono);
+      font-size: 20px;
+      padding: 10px 12px;
+      border: 3px solid var(--ink);
+      background: var(--paper-3);
+      color: var(--ink);
+      border-radius: 0;
+    }
+    .field input[type="text"]:focus { outline: none; background: #fff8e6; box-shadow: 4px 4px 0 var(--ink); }
+    .oath { list-style: none; padding: 0; margin: 0 0 22px; }
+    .oath li { padding: 8px 0 8px 30px; position: relative; border-bottom: 1px solid var(--ink-soft); }
+    .oath li::before { content: "§"; position: absolute; left: 4px; top: 8px; font-family: var(--mono); font-weight: 700; color: var(--red); }
+    .form-error { font-family: var(--mono); color: var(--red); font-weight: 700; min-height: 1.5em; margin: 10px 0 0; }
+
+    .certificate {
+      position: relative;
+      background: var(--paper-3);
+      border: 3px solid var(--ink);
+      outline: 2px solid var(--ink);
+      outline-offset: -12px;
+      padding: 44px 40px 40px;
+      text-align: center;
+      min-height: 440px;
+    }
+    .certificate.empty { display: flex; align-items: center; justify-content: center; color: var(--ink-soft); font-family: var(--mono); border-style: dashed; outline-style: dashed; }
+    .cert-org { font-family: var(--mono); font-size: 13px; letter-spacing: .14em; text-transform: uppercase; margin: 0 0 14px; }
+    .cert-title { font-family: var(--display); text-transform: uppercase; font-size: clamp(38px, 5vw, 60px); line-height: .95; margin: 0 0 18px; }
+    .cert-name {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: clamp(28px, 3.6vw, 40px);
+      border-bottom: 2px solid var(--ink);
+      display: inline-block;
+      padding: 0 20px 4px;
+      margin: 6px 0 16px;
+      word-break: break-word;
+    }
+    .cert-text { max-width: 30em; margin: 0 auto 26px; }
+    .cert-foot { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; font-family: var(--mono); font-size: 13px; text-align: left; }
+    .cert-sign { border-top: 2px solid var(--ink); padding-top: 4px; min-width: 150px; }
+    .certificate .stamp { position: absolute; width: 140px; left: 22px; bottom: 54px; transform: rotate(-18deg); }
+    .cert-actions { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 22px; }
+
+    /* ---------- Fuß ---------- */
+    .site-foot { margin-top: 80px; background: var(--ink); color: var(--paper); padding: 36px 0 44px; }
+    .site-foot .wrap { display: flex; justify-content: space-between; gap: 30px; flex-wrap: wrap; align-items: flex-end; }
+    .foot-title { font-family: var(--display); text-transform: uppercase; font-size: 34px; line-height: 1; margin: 0 0 8px; }
+    .foot-title em { font-style: normal; color: var(--red); }
+    .site-foot p { margin: 0; max-width: 560px; font-size: 16px; }
+    .foot-mono { font-family: var(--mono); font-size: 13px; color: var(--mustard); text-transform: uppercase; letter-spacing: .1em; }
+
+    /* ---------- Responsiv ---------- */
+    @media (max-width: 900px) {
+      .hero-grid, .report, .quiz, .pledge { grid-template-columns: 1fr; }
+      .hero-poster { max-width: 440px; }
+      .posters { grid-template-columns: repeat(2, 1fr); gap: 20px; }
+      .poster-big { font-size: clamp(30px, 7vw, 54px); }
+    }
+    @media (max-width: 640px) {
+      body { font-size: 17px; }
+      .section { padding-top: 56px; }
+      .mast-top span:nth-child(3) { display: none; }
+      .mast-nav a { flex-basis: 33%; padding: 8px 6px; font-size: 12px; border-bottom: 1px solid var(--ink); }
+      .lede { font-size: 19px; }
+      .posters { grid-template-columns: 1fr; }
+      .poster { aspect-ratio: 4 / 3.4; }
+      .poster-big { font-size: clamp(36px, 11vw, 56px); }
+      .hud { grid-template-columns: repeat(3, 1fr); }
+      .hud > div { padding: 6px 10px; }
+      .hud > div:nth-child(3) { border-right: 0; }
+      .hud-value { font-size: 24px; }
+      .hud-status { grid-column: 1 / -1; justify-content: flex-start; text-align: left; border-top: 2px solid var(--ink); border-right: 0 !important; }
+      .stage { height: 62vh; min-height: 340px; }
+      .card { padding: 20px 18px 22px; }
+      .card .stamp { width: 90px; right: -10px; top: -34px; }
+      .bars li { grid-template-columns: 7.5em 1fr 3em; font-size: 13px; }
+      .certificate { padding: 36px 22px 30px; }
+      .certificate .stamp { width: 100px; left: 10px; bottom: 70px; }
+      .cert-foot { flex-direction: column; align-items: flex-end; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .ticker-track, .poster-main .water line, .verdict.pop .verdict-stamp { animation: none; }
+      .poster:hover { transform: none; }
+    }
+
+    @media print {
+      body::after, .masthead, .ticker, .site-foot, .cert-actions { display: none; }
+      body * { visibility: hidden; }
+      #certificate, #certificate * { visibility: visible; }
+      #certificate { position: absolute; left: 0; top: 0; width: 100%; }
     }
   </style>
 </head>
-<body class="bg-slate-950 text-white min-h-screen flex flex-col items-center justify-center p-2 relative">
+<body>
 
-  <!-- Top UI Overlay -->
-  <div class="absolute top-4 left-4 right-4 max-w-4xl mx-auto flex justify-between items-center pointer-events-none z-10">
-    <div class="bg-slate-900/80 backdrop-blur border border-slate-800 px-4 py-2 rounded-xl flex items-center gap-3">
-      <span class="text-xs uppercase tracking-wider text-slate-400 font-bold">Status:</span>
-      <span id="statusText" class="text-amber-400 font-bold flex items-center gap-2">
-        <span class="inline-block w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
-        Flucht vor der Dusche!
-      </span>
-    </div>
+  <!-- Wiederverwendbarer Amtsstempel -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="stamp" viewBox="0 0 200 200">
+      <path id="stampArc" d="M100,100 m-73,0 a73,73 0 1,1 146,0 a73,73 0 1,1 -146,0" fill="none"/>
+      <circle cx="100" cy="100" r="95" fill="none" stroke="currentColor" stroke-width="6"/>
+      <circle cx="100" cy="100" r="56" fill="none" stroke="currentColor" stroke-width="3"/>
+      <text font-family="Courier Prime, Courier New, monospace" font-weight="700" font-size="15" letter-spacing="2.4" fill="currentColor">
+        <textPath href="#stampArc">MIN. FÜR SEIFE &amp; ORDNUNG · AMTLICH ·</textPath>
+      </text>
+      <text x="100" y="104" text-anchor="middle" font-family="Anton, Impact, sans-serif" font-size="30" fill="currentColor">GEPRÜFT</text>
+      <text x="100" y="128" text-anchor="middle" font-family="Courier Prime, Courier New, monospace" font-weight="700" font-size="14" fill="currentColor">ABT. IV</text>
+    </symbol>
+  </svg>
 
-    <div class="bg-slate-900/80 backdrop-blur border border-slate-800 px-5 py-2 rounded-xl flex items-center gap-4">
-      <div>
-        <div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Überlebenszeit</div>
-        <div id="scoreDisplay" class="text-2xl font-black text-cyan-400 tracking-tight">0.0s</div>
+  <header class="masthead">
+    <div class="wrap">
+      <div class="mast-top">
+        <span>Amtsblatt Nr. 47</span>
+        <span id="today">Heute</span>
+        <span>Preis: ein Stück Seife</span>
       </div>
-      <div class="h-8 w-px bg-slate-800"></div>
-      <div>
-        <div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Bestzeit</div>
-        <div id="highScoreDisplay" class="text-2xl font-black text-amber-400 tracking-tight">0.0s</div>
-      </div>
+      <h1 class="mast-title">Ministerium für<br><em>Seife &amp; Ordnung</em></h1>
+      <nav class="mast-nav" aria-label="Abschnitte">
+        <a href="#aufruf">Aufruf</a>
+        <a href="#simulator">Simulator</a>
+        <a href="#plakate">Plakate</a>
+        <a href="#lage">Lagebericht</a>
+        <a href="#test">Selbsttest</a>
+        <a href="#geloebnis">Gelöbnis</a>
+      </nav>
     </div>
-  </div>
-
-  <!-- Game Container -->
-  <div class="relative w-full max-w-4xl h-[75vh] min-h-[400px] flex items-center justify-center rounded-2xl overflow-hidden border border-slate-800 bg-slate-900/50">
-    <canvas id="gameCanvas" class="w-full h-full bg-slate-900 rounded-2xl"></canvas>
-
-    <!-- Controls Overlay (Mobile & Onscreen) -->
-    <div id="touchControls" class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-3 md:hidden pointer-events-auto">
-      <button id="btnUp" class="w-12 h-12 bg-slate-800/80 active:bg-cyan-600 rounded-xl border border-slate-700 text-xl font-bold flex items-center justify-center">▲</button>
-      <div class="flex flex-col gap-3">
-        <button id="btnLeft" class="w-12 h-12 bg-slate-800/80 active:bg-cyan-600 rounded-xl border border-slate-700 text-xl font-bold flex items-center justify-center">◀</button>
-        <button id="btnRight" class="w-12 h-12 bg-slate-800/80 active:bg-cyan-600 rounded-xl border border-slate-700 text-xl font-bold flex items-center justify-center">▶</button>
-      </div>
-      <button id="btnDown" class="w-12 h-12 bg-slate-800/80 active:bg-cyan-600 rounded-xl border border-slate-700 text-xl font-bold flex items-center justify-center">▼</button>
+    <div class="ticker" aria-label="Eilmeldungen">
+      <div class="ticker-track" id="tickerTrack"></div>
     </div>
+  </header>
 
-    <!-- Start / Game Over Screen Overlay -->
-    <div id="overlayScreen" class="absolute inset-0 bg-slate-950/85 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center z-20">
-      <!-- Title Graphic -->
-      <div class="mb-6">
-        <h1 class="text-4xl md:text-6xl font-black tracking-tight text-white mb-2">
-          STORMWORKS <span class="text-red-500 line-through decoration-4 decoration-red-500">SPIELER</span>
-        </h1>
-        <div class="inline-block bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 px-4 py-1.5 rounded-full text-sm font-semibold tracking-wide uppercase">
-          🚨 ACHTUNG: HYGIENE-ALARM 🚨
+  <main>
+    <!-- § 1 Aufruf -->
+    <section class="hero" id="aufruf">
+      <div class="wrap hero-grid">
+        <div>
+          <p class="kicker">Aufruf an alle Werftarbeiter</p>
+          <h2 class="hero-h">Bauen kann warten. <span>Duschen nicht.</span></h2>
+          <p class="lede">
+            Bürgerinnen und Bürger! Ein Spiel über Schiffe, Pumpen und Wasser hat eine ganze Generation
+            davon abgehalten, selbst mit Wasser in Berührung zu kommen. <strong>Das endet heute.</strong>
+            Das Ministerium für Seife &amp; Ordnung ruft zur sofortigen Körperpflege auf.
+          </p>
+          <div class="hero-actions">
+            <a class="btn" href="#simulator">Zum Fluchtsimulator</a>
+            <a class="btn btn-ghost" href="#test">Bin ich betroffen?</a>
+          </div>
+        </div>
+
+        <div class="hero-poster">
+          <div class="poster-main" role="img" aria-label="Plakat: Duschkopf vor Strahlenkranz, darunter der Text Täglich. Ohne Ausrede.">
+            <svg class="shower-art" viewBox="0 0 400 500" aria-hidden="true">
+              <path d="M342 -10 V92 Q342 140 294 140 H214" fill="none" stroke="#1b1814" stroke-width="24"/>
+              <rect x="186" y="122" width="36" height="44" fill="#1b1814"/>
+              <path d="M140 166 H268 L300 222 H108 Z" fill="#f4eddc" stroke="#1b1814" stroke-width="8" stroke-linejoin="miter"/>
+              <rect x="104" y="218" width="200" height="16" fill="#1b1814"/>
+              <g class="water" stroke="#f4eddc" stroke-width="7" stroke-dasharray="26 20">
+                <line x1="124" y1="244" x2="92"  y2="420"/>
+                <line x1="152" y1="244" x2="138" y2="420"/>
+                <line x1="180" y1="244" x2="176" y2="420"/>
+                <line x1="208" y1="244" x2="212" y2="420"/>
+                <line x1="236" y1="244" x2="250" y2="420"/>
+                <line x1="264" y1="244" x2="290" y2="420"/>
+                <line x1="290" y1="244" x2="326" y2="420"/>
+              </g>
+            </svg>
+            <svg class="stamp" viewBox="0 0 200 200" aria-hidden="true"><use href="#stamp"/></svg>
+            <div class="poster-banner">Täglich. Ohne Ausrede.<small>Erlass Nr. 1 · Körperpflege</small></div>
+          </div>
         </div>
       </div>
+    </section>
 
-      <p id="overlayMessage" class="text-slate-300 text-lg max-w-md mb-8 leading-relaxed">
-        Du baust lieber 12 Stunden an einer Wasserpumpe, als dich zu waschen? Die Dusche hat dich lokalisiert und verfolgt dich!
-      </p>
+    <!-- § 2 Simulator -->
+    <section class="section" id="simulator">
+      <div class="wrap">
+        <header class="sec-head"><span class="sec-no">§ 2</span><h2>Fluchtsimulator</h2></header>
+        <p class="sec-intro">
+          Schulungsmaterial für Einsatzkräfte: So verhält sich ein Stormworks-Spieler bei Kontakt mit fließendem Wasser.
+          Steuere Subjekt G., sammle Bauteile für das nächste Schiff und weiche der Dusche aus. Ab Sekunde 12 ist zusätzlich Seife im Umlauf.
+        </p>
 
-      <div class="flex flex-col sm:flex-row gap-4">
-        <button id="startBtn" class="glow-cyan px-8 py-4 bg-cyan-500 hover:bg-cyan-400 active:bg-cyan-600 text-slate-950 font-black text-xl rounded-xl transition duration-200 transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2">
-          <span>🎮</span> JETZT FLÜCHTEN
-        </button>
+        <div class="game">
+          <div class="hud">
+            <div><div class="hud-label">Flucht</div><div class="hud-value" id="hudTime">0,0 s</div></div>
+            <div><div class="hud-label">Bauteile</div><div class="hud-value" id="hudParts">0</div></div>
+            <div><div class="hud-label">Bestzeit</div><div class="hud-value" id="hudBest">0,0 s</div></div>
+            <div class="hud-status" id="hudStatusBox" data-level="idle">
+              <div><div class="hud-label">Lage</div><div class="hud-value" id="hudStatus">Bereit</div></div>
+            </div>
+          </div>
+
+          <div class="stage" id="stage">
+            <canvas id="game" aria-label="Spielfeld: Gregor flieht vor der Dusche"></canvas>
+
+            <div class="overlay" id="overlayStart">
+              <div class="card">
+                <svg class="stamp" viewBox="0 0 200 200" aria-hidden="true"><use href="#stamp"/></svg>
+                <p class="kicker">Übung 3 · Vertraulich</p>
+                <h3>Subjekt G. wurde gesichtet</h3>
+                <p>Letzter bekannter Aufenthalt: Werkstatt-Editor, seit 14 Stunden. Die Dusche hat die Verfolgung aufgenommen.</p>
+                <button class="btn" id="startBtn" type="button">Flucht starten</button>
+              </div>
+            </div>
+
+            <div class="overlay" id="overlayEnd" hidden>
+              <div class="card">
+                <svg class="stamp" viewBox="0 0 200 200" aria-hidden="true"><use href="#stamp"/></svg>
+                <p class="kicker">Einsatzprotokoll</p>
+                <h3 id="endTitle">Gestellt.</h3>
+                <p id="endText"></p>
+                <div class="card-facts">
+                  <div><span>Fluchtdauer</span><b id="endTime">0,0 s</b></div>
+                  <div><span>Gesammelte Bauteile</span><b id="endParts">0</b></div>
+                  <div><span>Einstufung</span><b class="rank" id="endRank"></b></div>
+                </div>
+                <button class="btn" id="againBtn" type="button">Nochmal fliehen</button>
+              </div>
+            </div>
+          </div>
+
+          <p class="game-help">
+            Steuerung: <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> oder Pfeiltasten. Am Handy: Finger aufs Feld legen, Gregor läuft hinterher.
+          </p>
+        </div>
       </div>
+    </section>
 
-      <div class="mt-8 text-xs text-slate-500 flex items-center gap-4">
-        <span>Steuerung: <kbd class="px-2 py-1 bg-slate-800 rounded text-slate-300 font-mono">WASD</kbd> oder <kbd class="px-2 py-1 bg-slate-800 rounded text-slate-300 font-mono">Pfeiltasten</kbd></span>
+    <!-- § 3 Plakate -->
+    <section class="section" id="plakate">
+      <div class="wrap">
+        <header class="sec-head"><span class="sec-no">§ 3</span><h2>Aushänge</h2></header>
+        <p class="sec-intro">Zum Ausdrucken und Aufhängen. Empfohlene Standorte: neben dem Monitor, an der Kühlschranktür, im Discord-Banner.</p>
+
+        <div class="posters">
+          <article class="poster p1">
+            <div class="poster-tag">Aushang 01</div>
+            <p class="poster-big">Seife ist kein DLC.</p>
+            <p class="poster-small">Kostenlos. Für alle. Sofort verfügbar.</p>
+          </article>
+          <article class="poster p2">
+            <div class="poster-tag">Aushang 02</div>
+            <div class="poster-num">14:0</div>
+            <p class="poster-big">Pumpen auf deinem Schiff gegen Duschen diese Woche.</p>
+          </article>
+          <article class="poster p3">
+            <div class="poster-tag">Aushang 03</div>
+            <p class="poster-big">Wer baut,<br>der duscht.</p>
+            <p class="poster-small">Ohne Ausnahme. Auch nicht für Logikschaltungen.</p>
+          </article>
+          <article class="poster p4">
+            <div class="poster-tag">Aushang 04</div>
+            <p class="poster-big">Salzwasser im Spiel zählt nicht.</p>
+            <p class="poster-small">Auch nicht, wenn das Schiff gesunken ist.</p>
+          </article>
+          <article class="poster p5">
+            <div class="poster-tag">Aushang 05</div>
+            <div class="poster-box">
+              <p class="poster-big">Deine Mitmenschen riechen mit.</p>
+              <p class="poster-small">Denk an deine Crew. Auch an die echte.</p>
+            </div>
+          </article>
+          <article class="poster p6">
+            <div class="poster-tag">Aushang 06</div>
+            <p class="poster-big">Erst<br>waschen,</p>
+            <p class="poster-big lower">dann Werft.</p>
+            <p class="poster-small">Reihenfolge ist Pflicht.</p>
+          </article>
+        </div>
       </div>
+    </section>
+
+    <!-- § 4 Lagebericht -->
+    <section class="section" id="lage">
+      <div class="wrap">
+        <header class="sec-head"><span class="sec-no">§ 4</span><h2>Lagebericht</h2></header>
+        <div class="report">
+          <div class="form-sheet">
+            <h3><span>Formular 7b · Akte G.</span><span>Vertraulich</span></h3>
+            <div class="hud-label">Zeit seit letzter bestätigter Dusche</div>
+            <div class="clock" id="sinceShower">--</div>
+            <div class="row"><span>Gebaute Wasserpumpen</span><span class="lead"></span><b>312</b></div>
+            <div class="row"><span>Davon an sich selbst benutzt</span><span class="lead"></span><b class="red">0</b></div>
+            <div class="row"><span>Gesunkene Schiffe</span><span class="lead"></span><b>47</b></div>
+            <div class="row"><span>"Nur noch kurz" gesagt</span><span class="lead"></span><b id="justOnce">1.204</b></div>
+            <div class="row"><span>Geöffnete Fenster (Mitbewohner)</span><span class="lead"></span><b>alle</b></div>
+            <div class="row"><span>Deine Bestzeit im Simulator</span><span class="lead"></span><b id="reportBest">keine</b></div>
+          </div>
+
+          <div class="form-sheet">
+            <h3><span>Tagesablauf des Subjekts</span><span>24 h</span></h3>
+            <ul class="bars">
+              <li><span>Stormworks</span><span class="bar"><i style="width:79%"></i></span><span>19 h</span></li>
+              <li><span>Schlaf</span><span class="bar"><i style="width:17%"></i></span><span>4 h</span></li>
+              <li><span>Essen (am PC)</span><span class="bar"><i style="width:3.5%"></i></span><span>0,8 h</span></li>
+              <li><span>Frische Luft</span><span class="bar"><i style="width:0.8%"></i></span><span>0,2 h</span></li>
+              <li><span>Körperpflege</span><span class="bar"><i class="red" style="width:0%"></i></span><span>0 h</span></li>
+            </ul>
+            <p class="footnote">Erhebung durch Abt. IV (Geruchsaufklärung). Fehlende Stunden: vermutlich Wiki gelesen.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- § 5 Selbsttest -->
+    <section class="section" id="test">
+      <div class="wrap">
+        <header class="sec-head"><span class="sec-no">§ 5</span><h2>Selbsttest</h2></header>
+        <p class="sec-intro">Kreuze ehrlich an. Das Ministerium sieht ohnehin alles.</p>
+        <div class="quiz">
+          <form id="quizForm">
+            <ul class="checks">
+              <li><label><input type="checkbox"><span class="box"></span><span>Ich habe heute länger an einem Propeller gebaut als geschlafen.</span></label></li>
+              <li><label><input type="checkbox"><span class="box"></span><span>Mein letztes Bad war, als mein Schiff gesunken ist.</span></label></li>
+              <li><label><input type="checkbox"><span class="box"></span><span>Ich kenne den Wasserdruck meiner Pumpen, aber nicht den meiner Dusche.</span></label></li>
+              <li><label><input type="checkbox"><span class="box"></span><span>Ich habe „nur noch kurz die Logik fixen“ gesagt. Vor sechs Stunden.</span></label></li>
+              <li><label><input type="checkbox"><span class="box"></span><span>Wenn ich den Raum betrete, öffnet jemand das Fenster.</span></label></li>
+              <li><label><input type="checkbox"><span class="box"></span><span>Ich dachte, Deo sei ein Mod aus dem Workshop.</span></label></li>
+            </ul>
+            <button class="btn" type="submit">Auswerten</button>
+          </form>
+
+          <div class="verdict pending" id="verdict" aria-live="polite">
+            <p class="verdict-label">Amtlicher Befund</p>
+            <div class="verdict-stamp" id="verdictStamp">Ausstehend</div>
+            <p id="verdictText">Bitte Fragebogen ausfüllen und einreichen.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- § 6 Gelöbnis -->
+    <section class="section" id="geloebnis">
+      <div class="wrap">
+        <header class="sec-head"><span class="sec-no">§ 6</span><h2>Hygiene-Gelöbnis</h2></header>
+        <div class="pledge">
+          <form id="pledgeForm" novalidate>
+            <p>Mit deiner Unterschrift verpflichtest du dich vor dem Ministerium:</p>
+            <ul class="oath">
+              <li>Vor jeder Bausession wird geduscht.</li>
+              <li>„Nur noch ein Teil“ gilt nicht als Ausrede.</li>
+              <li>Salzwasser im Spiel ersetzt keine Körperpflege.</li>
+              <li>Die Crew im Voice-Chat wird nicht mit Gerüchen belästigt.</li>
+            </ul>
+            <label class="field">
+              <span>Vor- und Nachname</span>
+              <input type="text" id="pledgeName" maxlength="40" autocomplete="name" placeholder="z. B. Gregor">
+            </label>
+            <button class="btn" type="submit">Gelöbnis ablegen</button>
+            <p class="form-error" id="pledgeError" role="alert"></p>
+          </form>
+
+          <div>
+            <div class="certificate empty" id="certificate">Die Urkunde erscheint nach Unterzeichnung.</div>
+            <div class="cert-actions" id="certActions" hidden>
+              <button class="btn btn-ghost" type="button" id="printBtn">Urkunde drucken</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-foot">
+    <div class="wrap">
+      <div>
+        <p class="foot-title">Ministerium für <em>Seife &amp; Ordnung</em></p>
+        <p>Satire. Dieses Ministerium existiert nicht, Gregor ist unschuldig, bis das Gegenteil gerochen wurde, und Stormworks ist ein gutes Spiel. Duschen trotzdem.</p>
+      </div>
+      <p class="foot-mono">Abt. IV · Geruchsaufklärung</p>
     </div>
-  </div>
+  </footer>
 
   <script>
-    const canvas = document.getElementById('gameCanvas');
+    // ---------------- Hilfsfunktionen ----------------
+    const $ = (id) => document.getElementById(id);
+    const fmtSec = (s) => s.toFixed(1).replace('.', ',') + ' s';
+    const store = {
+      get(key) { try { return localStorage.getItem(key); } catch (e) { return null; } },
+      set(key, val) { try { localStorage.setItem(key, val); } catch (e) {} }
+    };
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // ---------------- Kopf: Datum & Laufband ----------------
+    $('today').textContent = new Date().toLocaleDateString('de-DE', {
+      weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+    });
+
+    const tickerItems = [
+      'Eilmeldung: Stormworks-Spieler verwechselt Ballasttank mit Badewanne',
+      'Ministerium bestätigt: Seife ist kein DLC',
+      'Neue Verordnung: Jede gebaute Wasserpumpe verpflichtet zu einer Dusche',
+      'Meldestelle für Geruchsbelästigung rund um die Uhr besetzt',
+      'Hinweis: Salzwasser im Spiel zählt nicht als Körperpflege',
+      'Subjekt G. weiterhin flüchtig, zuletzt gesehen im Werkstatt-Editor',
+      'Mitbewohner beantragen Gasmasken',
+      'Duschkopf zum Helden der Woche ernannt'
+    ];
+    const tickerHtml = tickerItems.map(t => `<span>+++ ${t}</span>`).join('');
+    $('tickerTrack').innerHTML = tickerHtml + tickerHtml;
+
+    // ---------------- Spiel ----------------
+    const stage = $('stage');
+    const canvas = $('game');
     const ctx = canvas.getContext('2d');
-
-    const overlayScreen = document.getElementById('overlayScreen');
-    const overlayMessage = document.getElementById('overlayMessage');
-    const startBtn = document.getElementById('startBtn');
-    const scoreDisplay = document.getElementById('scoreDisplay');
-    const highScoreDisplay = document.getElementById('highScoreDisplay');
-    const statusText = document.getElementById('statusText');
-
-    // Game variables
-    let gameActive = false;
-    let score = 0;
-    let highScore = 0;
-    let startTime = 0;
-    let animationFrameId = null;
-
-    // Keys pressed state
-    const keys = {
-      ArrowUp: false,
-      ArrowDown: false,
-      ArrowLeft: false,
-      ArrowRight: false,
-      w: false,
-      a: false,
-      s: false,
-      d: false
+    const hud = {
+      time: $('hudTime'), parts: $('hudParts'), best: $('hudBest'),
+      status: $('hudStatus'), statusBox: $('hudStatusBox')
     };
 
-    // Player object (Stormworks Gamer)
-    const player = {
-      x: 0,
-      y: 0,
-      radius: 24,
-      speed: 6.5,
-      color: '#06b6d4',
-      trail: []
+    const PART_NAMES = ['Propeller', 'Pumpe', 'Schraube', 'Logikgatter', 'Ballasttank', 'Ruder', 'Anker', 'Generator'];
+    const END_TEXTS = {
+      shower: [
+        'Die Dusche hat das Subjekt gestellt. Widerstand war zwecklos.',
+        'Wasserkontakt bestätigt. Das Subjekt riecht jetzt nach Zitrone.',
+        'Festgenommen wegen unerlaubten Riechens in der Öffentlichkeit.'
+      ],
+      soap: [
+        'Auf einem Stück Seife ausgerutscht. Klassischer Anfängerfehler.',
+        'Die Seife war schneller. Das Ministerium ist zufrieden.',
+        'Von einer Seife erwischt. Die Dusche ist trotzdem stolz.'
+      ]
     };
 
-    // Shower enemy object
-    const shower = {
-      x: 0,
-      y: 0,
-      radius: 32,
-      baseSpeed: 3.8,
-      speed: 3.8,
-      waterDrops: []
-    };
+    let W = 0, H = 0, scale = 1;
+    const input = { up: false, down: false, left: false, right: false };
+    const pointer = { active: false, x: 0, y: 0 };
+    const state = { running: false, time: 0, parts: 0, best: parseFloat(store.get('msoBest')) || 0, last: 0, nextSoap: 12 };
+    const player = { x: 0, y: 0, r: 20, speed: 360, puffs: [] };
+    const shower = { x: 0, y: 0, r: 28, base: 210, speed: 210, drops: [] };
+    let parts = [];
+    let soaps = [];
+    let popups = [];
 
-    // Resize canvas dynamically
-    function resizeCanvas() {
-      const container = canvas.parentElement;
-      canvas.width = container.clientWidth;
-      canvas.height = container.clientHeight;
+    function resize() {
+      const rect = stage.getBoundingClientRect();
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      W = rect.width;
+      H = rect.height;
+      canvas.width = Math.round(W * dpr);
+      canvas.height = Math.round(H * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      scale = Math.max(.6, Math.min(1, Math.min(W, H) / 560));
+      player.x = Math.min(Math.max(player.x, player.r), W - player.r);
+      player.y = Math.min(Math.max(player.y, player.r), H - player.r);
+      if (!state.running) draw();
     }
 
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
+    function rand(min, max) { return min + Math.random() * (max - min); }
+    function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 
-    // Input handlers
-    window.addEventListener('keydown', (e) => {
-      const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
-      if (keys.hasOwnProperty(k) || keys.hasOwnProperty(e.key)) {
-        keys[e.key] = true;
-        if (e.key.length === 1) keys[e.key.toLowerCase()] = true;
-      }
-    });
-
-    window.addEventListener('keyup', (e) => {
-      const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
-      if (keys.hasOwnProperty(k) || keys.hasOwnProperty(e.key)) {
-        keys[e.key] = false;
-        if (e.key.length === 1) keys[e.key.toLowerCase()] = false;
-      }
-    });
-
-    function setupTouchControl(id, keyName) {
-      const btn = document.getElementById(id);
-      if (!btn) return;
-
-      const start = (e) => { e.preventDefault(); keys[keyName] = true; };
-      const end = (e) => { e.preventDefault(); keys[keyName] = false; };
-
-      btn.addEventListener('touchstart', start);
-      btn.addEventListener('touchend', end);
-      btn.addEventListener('mousedown', start);
-      btn.addEventListener('mouseup', end);
+    function spawnPart() {
+      let x, y, tries = 0;
+      do {
+        x = rand(40, W - 40);
+        y = rand(40, H - 40);
+        tries++;
+      } while (tries < 20 && Math.hypot(x - shower.x, y - shower.y) < 160);
+      return { x, y, rot: rand(0, Math.PI), name: pick(PART_NAMES) };
     }
 
-    setupTouchControl('btnUp', 'ArrowUp');
-    setupTouchControl('btnDown', 'ArrowDown');
-    setupTouchControl('btnLeft', 'ArrowLeft');
-    setupTouchControl('btnRight', 'ArrowRight');
-
-    function resetGame() {
-      resizeCanvas();
-      
-      // Position player at center
-      player.x = canvas.width / 2;
-      player.y = canvas.height / 2;
-      player.trail = [];
-
-      // Spawn shower at top left or random corner far from player
-      shower.x = 80;
-      shower.y = 80;
-      shower.speed = shower.baseSpeed;
-      shower.waterDrops = [];
-
-      // Initialize drops
-      for (let i = 0; i < 25; i++) {
-        shower.waterDrops.push({
-          x: Math.random() * canvas.width,
-          y: Math.random() * canvas.height,
-          speed: 2 + Math.random() * 4,
-          length: 8 + Math.random() * 12,
-          opacity: 0.2 + Math.random() * 0.5
-        });
-      }
-
-      score = 0;
-      startTime = Date.now();
-      gameActive = true;
-      overlayScreen.classList.add('hidden');
-      statusText.innerHTML = `<span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span> Läuft davon!`;
-
-      if (animationFrameId) cancelAnimationFrame(animationFrameId);
-      gameLoop();
+    function spawnSoap() {
+      const side = Math.floor(Math.random() * 4);
+      const x = side === 0 ? 30 : side === 1 ? W - 30 : rand(30, W - 30);
+      const y = side === 2 ? 30 : side === 3 ? H - 30 : rand(30, H - 30);
+      const ang = Math.atan2(player.y - y, player.x - x) + rand(-.6, .6);
+      const sp = rand(150, 220) * scale;
+      soaps.push({ x, y, vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp, w: 34, h: 20, rot: 0, arm: 1.0 });
     }
 
-    function update() {
-      if (!gameActive) return;
+    function reset() {
+      resize();
+      player.x = W / 2;
+      player.y = H / 2;
+      player.puffs = [];
+      const corners = [[60, 60], [W - 60, 60], [60, H - 60], [W - 60, H - 60]];
+      [shower.x, shower.y] = pick(corners);
+      shower.drops = [];
+      soaps = [];
+      popups = [];
+      parts = [spawnPart(), spawnPart(), spawnPart()];
+      state.time = 0;
+      state.parts = 0;
+      state.nextSoap = 12;
+    }
 
-      // Update timer / score
-      score = ((Date.now() - startTime) / 1000).toFixed(1);
-      scoreDisplay.textContent = `${score}s`;
+    function setStatus(text, level) {
+      if (hud.status.textContent !== text) hud.status.textContent = text;
+      hud.statusBox.dataset.level = level;
+    }
 
-      // Slowly increase shower speed as time passes
-      shower.speed = shower.baseSpeed + Math.min(score * 0.08, 4.5);
+    function start() {
+      reset();
+      $('overlayStart').hidden = true;
+      $('overlayEnd').hidden = true;
+      state.running = true;
+      state.last = performance.now();
+      requestAnimationFrame(frame);
+    }
 
-      // Player Movement
-      let dx = 0;
-      let dy = 0;
+    function frame(ts) {
+      if (!state.running) return;
+      const dt = Math.min((ts - state.last) / 1000, 0.05);
+      state.last = ts;
+      update(dt);
+      draw();
+      if (state.running) requestAnimationFrame(frame);
+    }
 
-      if (keys.ArrowUp || keys.w) dy -= 1;
-      if (keys.ArrowDown || keys.s) dy += 1;
-      if (keys.ArrowLeft || keys.a) dx -= 1;
-      if (keys.ArrowRight || keys.d) dx += 1;
+    function update(dt) {
+      state.time += dt;
+      const t = state.time;
 
-      // Normalize diagonal speed
-      if (dx !== 0 && dy !== 0) {
-        dx *= 0.7071;
-        dy *= 0.7071;
+      // Bewegung des Spielers
+      let dx = 0, dy = 0;
+      const sp = player.speed * scale;
+      if (pointer.active) {
+        const ddx = pointer.x - player.x, ddy = pointer.y - player.y;
+        const d = Math.hypot(ddx, ddy);
+        if (d > 4) {
+          const step = Math.min(sp * dt, d);
+          player.x += ddx / d * step;
+          player.y += ddy / d * step;
+        }
+      } else {
+        if (input.up) dy -= 1;
+        if (input.down) dy += 1;
+        if (input.left) dx -= 1;
+        if (input.right) dx += 1;
+        if (dx && dy) { dx *= Math.SQRT1_2; dy *= Math.SQRT1_2; }
+        player.x += dx * sp * dt;
+        player.y += dy * sp * dt;
       }
+      player.x = Math.min(Math.max(player.x, player.r), W - player.r);
+      player.y = Math.min(Math.max(player.y, player.r), H - player.r);
 
-      player.x += dx * player.speed;
-      player.y += dy * player.speed;
+      // Geruchswolken hinter dem Spieler
+      if (Math.random() < dt * 14) {
+        player.puffs.push({ x: player.x + rand(-8, 8), y: player.y + rand(-8, 8), life: 1 });
+      }
+      player.puffs.forEach(p => { p.life -= dt * 1.4; p.y -= dt * 18; });
+      player.puffs = player.puffs.filter(p => p.life > 0);
 
-      // Clamp player inside canvas
-      player.x = Math.max(player.radius, Math.min(canvas.width - player.radius, player.x));
-      player.y = Math.max(player.radius, Math.min(canvas.height - player.radius, player.y));
+      // Dusche verfolgt den Spieler
+      shower.speed = (shower.base + Math.min(t * 4, 200)) * scale;
+      const ang = Math.atan2(player.y - shower.y, player.x - shower.x);
+      shower.x += Math.cos(ang) * shower.speed * dt;
+      shower.y += Math.sin(ang) * shower.speed * dt;
 
-      // Player Trail
-      player.trail.push({ x: player.x, y: player.y, alpha: 1.0 });
-      if (player.trail.length > 12) player.trail.shift();
-      player.trail.forEach(t => t.alpha -= 0.08);
+      // Sprühwasser
+      for (let i = 0; i < 3; i++) {
+        shower.drops.push({ x: shower.x + rand(-14, 14), y: shower.y + 10, vx: rand(-60, 60), vy: rand(80, 200), life: rand(.3, .6) });
+      }
+      shower.drops.forEach(d => { d.x += d.vx * dt; d.y += d.vy * dt; d.life -= dt; });
+      shower.drops = shower.drops.filter(d => d.life > 0);
 
-      // Shower Chasing Logic (move towards player)
-      const angle = Math.atan2(player.y - shower.y, player.x - shower.x);
-      shower.x += Math.cos(angle) * shower.speed;
-      shower.y += Math.sin(angle) * shower.speed;
-
-      // Update ambient water drops around shower
-      shower.waterDrops.forEach(drop => {
-        drop.y += drop.speed;
-        drop.x -= 0.5;
-        if (drop.y > canvas.height) {
-          drop.y = -10;
-          drop.x = Math.random() * canvas.width;
+      // Bauteile einsammeln
+      parts.forEach((p, i) => {
+        p.rot += dt * 1.5;
+        if (Math.hypot(p.x - player.x, p.y - player.y) < player.r + 14) {
+          state.parts++;
+          popups.push({ x: p.x, y: p.y, text: '+1 ' + p.name, life: 1 });
+          parts[i] = spawnPart();
         }
       });
 
-      const dist = Math.hypot(player.x - shower.x, player.y - shower.y);
-      if (dist < player.radius + shower.radius - 5) {
-        gameOver();
+      // Seife
+      if (t >= state.nextSoap && soaps.length < 4) {
+        spawnSoap();
+        state.nextSoap = t + 12;
       }
+      soaps.forEach(s => {
+        s.arm -= dt;
+        s.x += s.vx * dt;
+        s.y += s.vy * dt;
+        s.rot += dt * 2;
+        if (s.x < 18 || s.x > W - 18) { s.vx *= -1; s.x = Math.min(Math.max(s.x, 18), W - 18); }
+        if (s.y < 18 || s.y > H - 18) { s.vy *= -1; s.y = Math.min(Math.max(s.y, 18), H - 18); }
+      });
+
+      popups.forEach(p => { p.life -= dt; p.y -= dt * 30; });
+      popups = popups.filter(p => p.life > 0);
+
+      // Treffer
+      const dist = Math.hypot(player.x - shower.x, player.y - shower.y);
+      if (dist < player.r + shower.r - 6) return end('shower');
+      for (const s of soaps) {
+        if (s.arm <= 0 && Math.hypot(player.x - s.x, player.y - s.y) < player.r + 12) return end('soap');
+      }
+
+      // Anzeige
+      hud.time.textContent = fmtSec(t);
+      hud.parts.textContent = state.parts;
+      if (dist < 130 * scale + shower.r) setStatus('Wasserkontakt droht', 'alarm');
+      else if (soaps.length && soaps.some(s => Math.hypot(player.x - s.x, player.y - s.y) < 110)) setStatus('Seife in der Nähe', 'warn');
+      else if (t < 3) setStatus('Flüchtig', 'idle');
+      else setStatus(soaps.length ? 'Seife im Umlauf' : 'Flüchtig', 'idle');
     }
 
+    function rankFor(t) {
+      if (t < 10) return 'Hygienischer Totalausfall';
+      if (t < 20) return 'Bekennender Nichtduscher';
+      if (t < 35) return 'Fortgeschrittener Stinker';
+      if (t < 60) return 'Meister der Ausrede';
+      return 'Großadmiral der Werft';
+    }
+
+    function end(reason) {
+      state.running = false;
+      pointer.active = false;
+      draw();
+      const t = state.time;
+      const newBest = t > state.best;
+      if (newBest) {
+        state.best = t;
+        store.set('msoBest', String(t));
+        updateBest();
+      }
+      setStatus(reason === 'soap' ? 'Auf Seife ausgerutscht' : 'Gestellt', 'alarm');
+      $('endTitle').textContent = newBest && t > 0 ? 'Neue Bestzeit. Trotzdem gestellt.' : (reason === 'soap' ? 'Ausgerutscht.' : 'Gestellt.');
+      $('endText').textContent = pick(END_TEXTS[reason]);
+      $('endTime').textContent = fmtSec(t);
+      $('endParts').textContent = state.parts;
+      $('endRank').textContent = rankFor(t);
+      $('overlayEnd').hidden = false;
+      $('againBtn').focus({ preventScroll: true });
+    }
+
+    function updateBest() {
+      hud.best.textContent = fmtSec(state.best);
+      $('reportBest').textContent = state.best > 0 ? fmtSec(state.best) : 'keine';
+    }
+
+    // ---------------- Zeichnen ----------------
     function draw() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (!W || !H) return;
+      ctx.clearRect(0, 0, W, H);
 
-      // Draw Grid Background
-      ctx.strokeStyle = '#1e293b';
+      // Papier und Bauplan-Raster
+      ctx.fillStyle = '#f1e9d6';
+      ctx.fillRect(0, 0, W, H);
       ctx.lineWidth = 1;
-      const gridSize = 40;
-      for (let x = 0; x < canvas.width; x += gridSize) {
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, canvas.height);
-        ctx.stroke();
+      for (let x = 0; x <= W; x += 32) {
+        ctx.strokeStyle = x % 160 === 0 ? 'rgba(36,87,126,.28)' : 'rgba(36,87,126,.12)';
+        ctx.beginPath(); ctx.moveTo(x + .5, 0); ctx.lineTo(x + .5, H); ctx.stroke();
       }
-      for (let y = 0; y < canvas.height; y += gridSize) {
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(canvas.width, y);
-        ctx.stroke();
+      for (let y = 0; y <= H; y += 32) {
+        ctx.strokeStyle = y % 160 === 0 ? 'rgba(36,87,126,.28)' : 'rgba(36,87,126,.12)';
+        ctx.beginPath(); ctx.moveTo(0, y + .5); ctx.lineTo(W, y + .5); ctx.stroke();
       }
+      ctx.fillStyle = 'rgba(36,87,126,.55)';
+      ctx.font = '700 11px "Courier Prime", monospace';
+      ctx.textAlign = 'left';
+      ctx.fillText('ÜBUNGSGELÄNDE 3  ·  MASSSTAB 1:1  ·  BETRETEN NUR GEWASCHEN', 12, H - 12);
 
-      // Draw Ambient Rain Drops
-      shower.waterDrops.forEach(drop => {
-        ctx.strokeStyle = `rgba(56, 189, 248, ${drop.opacity})`;
+      // Bauteile
+      parts.forEach(p => drawGear(p.x, p.y, p.rot));
+
+      // Seifen
+      soaps.forEach(s => {
+        ctx.save();
+        ctx.translate(s.x, s.y);
+        ctx.rotate(Math.sin(s.rot) * .3);
+        const blink = s.arm > 0 && Math.floor(s.arm * 8) % 2 === 0;
+        ctx.globalAlpha = blink ? .35 : 1;
+        ctx.fillStyle = '#e8b4bc';
+        ctx.strokeStyle = '#1b1814';
+        ctx.lineWidth = 3;
+        roundRect(-s.w / 2, -s.h / 2, s.w, s.h, 6);
+        ctx.fill(); ctx.stroke();
+        ctx.fillStyle = '#1b1814';
+        ctx.font = '700 9px "Courier Prime", monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('SEIFE', 0, 3);
+        ctx.restore();
+      });
+
+      // Geruchswolken
+      player.puffs.forEach(p => {
+        ctx.strokeStyle = `rgba(110,120,40,${p.life * .55})`;
         ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.moveTo(drop.x, drop.y);
-        ctx.lineTo(drop.x - 2, drop.y + drop.length);
+        for (let i = 0; i <= 12; i++) {
+          const yy = p.y - i * 2;
+          const xx = p.x + Math.sin(i * .9 + p.life * 6) * 4;
+          i ? ctx.lineTo(xx, yy) : ctx.moveTo(xx, yy);
+        }
         ctx.stroke();
       });
 
-      // Draw Player Trail
-      player.trail.forEach(t => {
-        if (t.alpha <= 0) return;
-        ctx.fillStyle = `rgba(6, 182, 212, ${t.alpha * 0.3})`;
-        ctx.beginPath();
-        ctx.arc(t.x, t.y, player.radius * 0.8, 0, Math.PI * 2);
-        ctx.fill();
-      });
-
-      // Draw Player (Stormworks Gamer)
+      // Spieler
       ctx.save();
       ctx.translate(player.x, player.y);
-
-      // Player Outer Glow
-      ctx.shadowColor = '#06b6d4';
-      ctx.shadowBlur = 15;
-
-      // Player Body
-      ctx.fillStyle = '#0284c7';
-      ctx.beginPath();
-      ctx.arc(0, 0, player.radius, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.strokeStyle = '#38bdf8';
-      ctx.lineWidth = 3;
-      ctx.stroke();
-
-      // Headset / Gamer detail
-      ctx.shadowBlur = 0;
-      ctx.fillStyle = '#0f172a';
-      ctx.fillRect(-player.radius - 2, -6, 6, 12);
-      ctx.fillRect(player.radius - 4, -6, 6, 12);
-
-      // Text label for player
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 11px Inter, sans-serif';
+      ctx.fillStyle = '#1b1814';
+      ctx.beginPath(); ctx.arc(0, 0, player.r, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = '#dda12a';
+      ctx.lineWidth = 4;
+      ctx.beginPath(); ctx.arc(0, -2, player.r + 3, Math.PI * 1.1, Math.PI * 1.9); ctx.stroke();
+      ctx.fillStyle = '#dda12a';
+      ctx.fillRect(-player.r - 5, -7, 7, 14);
+      ctx.fillRect(player.r - 2, -7, 7, 14);
+      ctx.fillStyle = '#f4eddc';
+      ctx.font = '22px Anton, Impact, sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('Gregor', 0, -player.radius - 8);
-      ctx.fillStyle = '#94a3b8';
-      ctx.font = '9px Inter, sans-serif';
-      ctx.fillText('Gregor', 0, 4);
-
+      ctx.fillText('G', 0, 8);
+      ctx.fillStyle = '#1b1814';
+      ctx.font = '700 12px "Courier Prime", monospace';
+      ctx.fillText('GREGOR', 0, -player.r - 10);
       ctx.restore();
 
-      // Draw Shower Enemy
+      // Sprühwasser
+      ctx.strokeStyle = 'rgba(36,87,126,.8)';
+      ctx.lineWidth = 2;
+      shower.drops.forEach(d => {
+        ctx.beginPath(); ctx.moveTo(d.x, d.y); ctx.lineTo(d.x + d.vx * .03, d.y + d.vy * .05); ctx.stroke();
+      });
+
+      // Dusche
       ctx.save();
       ctx.translate(shower.x, shower.y);
-
-      // Red Hazard Aura
-      ctx.shadowColor = '#ef4444';
-      ctx.shadowBlur = 25;
-
-      ctx.fillStyle = '#1e1b4b';
-      ctx.beginPath();
-      ctx.arc(0, 0, shower.radius, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.strokeStyle = '#ef4444';
-      ctx.lineWidth = 4;
+      ctx.fillStyle = '#24577e';
+      ctx.beginPath(); ctx.arc(0, 0, shower.r, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = '#c3261c';
+      ctx.lineWidth = 5;
       ctx.stroke();
-
-      // Showerhead Icon Rendering
-      ctx.shadowBlur = 0;
-      ctx.fillStyle = '#94a3b8';
-      // Shower pipe
-      ctx.fillRect(-4, -shower.radius + 6, 8, 14);
-      // Shower head plate
-      ctx.fillStyle = '#cbd5e1';
+      ctx.fillStyle = '#f4eddc';
+      ctx.fillRect(-4, -shower.r + 5, 8, 12);
       ctx.beginPath();
-      ctx.ellipse(0, -2, 18, 8, 0, 0, Math.PI * 2);
+      ctx.moveTo(-10, -9); ctx.lineTo(10, -9); ctx.lineTo(17, 3); ctx.lineTo(-17, 3); ctx.closePath();
       ctx.fill();
-
-      // Water Spray Particles from Showerhead
-      ctx.fillStyle = '#38bdf8';
-      const time = Date.now() * 0.01;
+      ctx.fillStyle = '#7fa9c6';
+      const ph = performance.now() * .012;
       for (let i = -12; i <= 12; i += 6) {
-        const offset = Math.sin(time + i) * 3;
-        ctx.beginPath();
-        ctx.arc(i, 12 + offset, 2.5, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.beginPath(); ctx.arc(i, 11 + Math.sin(ph + i) * 3, 2.4, 0, Math.PI * 2); ctx.fill();
       }
-
-      // Label "DUSCHE"
-      ctx.fillStyle = '#f87171';
-      ctx.font = 'black 12px Inter, sans-serif';
+      ctx.fillStyle = '#c3261c';
+      ctx.font = '15px Anton, Impact, sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('🚿 DUSCHE', 0, shower.radius + 16);
+      ctx.fillText('DUSCHE', 0, -shower.r - 9);
+      ctx.restore();
 
+      // Einblendungen
+      popups.forEach(p => {
+        ctx.fillStyle = `rgba(27,24,20,${Math.min(1, p.life * 1.5)})`;
+        ctx.font = '700 13px "Courier Prime", monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText(p.text, p.x, p.y - 18);
+      });
+    }
+
+    function drawGear(x, y, rot) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(rot);
+      ctx.fillStyle = '#dda12a';
+      ctx.strokeStyle = '#1b1814';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      const teeth = 8, ro = 13, ri = 9.5;
+      for (let i = 0; i < teeth * 2; i++) {
+        const a = (i / (teeth * 2)) * Math.PI * 2;
+        const r = i % 2 ? ri : ro;
+        ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r);
+      }
+      ctx.closePath();
+      ctx.fill(); ctx.stroke();
+      ctx.fillStyle = '#f1e9d6';
+      ctx.beginPath(); ctx.arc(0, 0, 4, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
       ctx.restore();
     }
 
-    function gameLoop() {
-      update();
-      draw();
-      if (gameActive) {
-        animationFrameId = requestAnimationFrame(gameLoop);
-      }
+    function roundRect(x, y, w, h, r) {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.arcTo(x + w, y, x + w, y + h, r);
+      ctx.arcTo(x + w, y + h, x, y + h, r);
+      ctx.arcTo(x, y + h, x, y, r);
+      ctx.arcTo(x, y, x + w, y, r);
+      ctx.closePath();
     }
 
-    function gameOver() {
-      gameActive = false;
-      if (parseFloat(score) > parseFloat(highScore)) {
-        highScore = score;
-        highScoreDisplay.textContent = `${highScore}s`;
+    // ---------------- Eingabe ----------------
+    const keyMap = {
+      arrowup: 'up', w: 'up', arrowdown: 'down', s: 'down',
+      arrowleft: 'left', a: 'left', arrowright: 'right', d: 'right'
+    };
+    window.addEventListener('keydown', (e) => {
+      const k = keyMap[e.key.toLowerCase()];
+      if (!k) return;
+      if (state.running) {
+        e.preventDefault();
+        pointer.active = false;
       }
+      input[k] = true;
+    });
+    window.addEventListener('keyup', (e) => {
+      const k = keyMap[e.key.toLowerCase()];
+      if (k) input[k] = false;
+    });
+    window.addEventListener('blur', () => {
+      Object.keys(input).forEach(k => input[k] = false);
+      pointer.active = false;
+    });
 
-      statusText.innerHTML = `<span class="inline-block w-2.5 h-2.5 rounded-full bg-red-500"></span> ERWISCHT!`;
+    function setPointer(e) {
+      const rect = canvas.getBoundingClientRect();
+      pointer.x = e.clientX - rect.left;
+      pointer.y = e.clientY - rect.top;
+    }
+    canvas.addEventListener('pointerdown', (e) => {
+      if (!state.running) return;
+      pointer.active = true;
+      setPointer(e);
+      canvas.setPointerCapture(e.pointerId);
+    });
+    canvas.addEventListener('pointermove', (e) => { if (pointer.active) setPointer(e); });
+    ['pointerup', 'pointercancel'].forEach(ev => canvas.addEventListener(ev, () => { pointer.active = false; }));
 
-      // Show Overlay
-      overlayMessage.innerHTML = `
-        <span class="text-2xl font-black text-red-500 block mb-2">SEIFE UND WASSER HABEN DICH ERWISCHT!</span>
-        Du hast <span class="text-cyan-400 font-bold">${score} Sekunden</span> lang hygiene-resistent überlebt.
-      `;
-      startBtn.innerHTML = `<span>🔄</span> ERNEUT VERSUCHEN`;
-      overlayScreen.classList.remove('hidden');
+    $('startBtn').addEventListener('click', start);
+    $('againBtn').addEventListener('click', start);
+    window.addEventListener('resize', resize);
+
+    reset();
+    updateBest();
+    if (document.fonts) document.fonts.ready.then(() => { if (!state.running) draw(); });
+
+    // ---------------- Lagebericht ----------------
+    const lastShower = Date.now() - ((11 * 24 + 4) * 3600 + 17 * 60 + 9) * 1000;
+    const justOnceStart = 1204;
+    const pageStart = Date.now();
+    function tickReport() {
+      const s = Math.floor((Date.now() - lastShower) / 1000);
+      const d = Math.floor(s / 86400);
+      const h = String(Math.floor(s % 86400 / 3600)).padStart(2, '0');
+      const m = String(Math.floor(s % 3600 / 60)).padStart(2, '0');
+      const sec = String(s % 60).padStart(2, '0');
+      $('sinceShower').textContent = `${d} Tage ${h}:${m}:${sec}`;
+      const extra = Math.floor((Date.now() - pageStart) / 45000);
+      $('justOnce').textContent = (justOnceStart + extra).toLocaleString('de-DE');
+    }
+    tickReport();
+    setInterval(tickReport, 1000);
+
+    // ---------------- Selbsttest ----------------
+    const verdicts = [
+      { max: 0, cls: 'ok', stamp: 'Unbedenklich', text: 'Keine Auffälligkeiten. Das Ministerium ist misstrauisch, aber zufrieden.' },
+      { max: 2, cls: 'warn', stamp: 'Unter Beobachtung', text: 'Erste Anzeichen. Bitte heute noch duschen, bevor das nächste Schiff vom Stapel läuft.' },
+      { max: 4, cls: '', stamp: 'Gefährdet', text: 'Akute Werftlastigkeit festgestellt. Die Dusche wurde bereits informiert.' },
+      { max: 6, cls: '', stamp: 'Sofort duschen', text: 'Höchste Alarmstufe. Bitte jetzt aufstehen, Seife greifen, Wasser aufdrehen. Das Spiel läuft dir nicht weg.' }
+    ];
+    $('quizForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const n = e.target.querySelectorAll('input:checked').length;
+      const v = verdicts.find(v => n <= v.max);
+      const box = $('verdict');
+      const stamp = $('verdictStamp');
+      box.classList.remove('pending', 'pop');
+      stamp.className = 'verdict-stamp ' + v.cls;
+      stamp.textContent = v.stamp;
+      $('verdictText').textContent = `${n} von 6 Merkmalen erfüllt. ${v.text}`;
+      if (!reduceMotion) { void box.offsetWidth; box.classList.add('pop'); }
+    });
+
+    // ---------------- Gelöbnis ----------------
+    function renderCertificate(data) {
+      const cert = $('certificate');
+      cert.classList.remove('empty');
+      cert.innerHTML = `
+        <svg class="stamp" viewBox="0 0 200 200" aria-hidden="true"><use href="#stamp"/></svg>
+        <p class="cert-org">Ministerium für Seife &amp; Ordnung · Abt. IV</p>
+        <p class="cert-title">Urkunde</p>
+        <p>Hiermit wird bestätigt, dass</p>
+        <div class="cert-name"></div>
+        <p class="cert-text">das Hygiene-Gelöbnis feierlich abgelegt hat und sich verpflichtet, vor jeder Bausession zu duschen. Zuwiderhandlungen werden mit Seife geahndet.</p>
+        <div class="cert-foot">
+          <span class="cert-meta"></span>
+          <span class="cert-sign">Der Minister für Seife</span>
+        </div>`;
+      cert.querySelector('.cert-name').textContent = data.name;
+      cert.querySelector('.cert-meta').textContent = `Nr. ${data.nr} · ${data.date}`;
+      $('certActions').hidden = false;
     }
 
-    startBtn.addEventListener('click', resetGame);
+    $('pledgeForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = $('pledgeName').value.trim();
+      if (!name) {
+        $('pledgeError').textContent = 'Ohne Unterschrift kein Gelöbnis.';
+        $('pledgeName').focus();
+        return;
+      }
+      $('pledgeError').textContent = '';
+      const data = {
+        name,
+        nr: String(Math.floor(10000 + Math.random() * 89999)),
+        date: new Date().toLocaleDateString('de-DE')
+      };
+      store.set('msoPledge', JSON.stringify(data));
+      renderCertificate(data);
+    });
+    $('printBtn').addEventListener('click', () => window.print());
+
+    try {
+      const saved = JSON.parse(store.get('msoPledge') || 'null');
+      if (saved && saved.name) {
+        $('pledgeName').value = saved.name;
+        renderCertificate(saved);
+      }
+    } catch (e) {}
   </script>
 </body>
 </html>
